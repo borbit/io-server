@@ -1,0 +1,13 @@
+{
+  "name": "socket",
+  "version": "0.0.0",
+  "description": "socket",
+  "contributors": [
+    "Serge Borbit <serge.borbit@gmail.com>"
+  ],
+  "dependencies": {
+    "ws": "latest",
+    "node-uuid": "latest",
+    "async": "latest"
+  }
+}
