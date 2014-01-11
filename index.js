@@ -118,6 +118,9 @@ exports.listen = function(port, cb) {
       rooms[room].forEach(function(clientId) {
         if (clientId != client.id) {
           try {
+            // i don't know why but sometimes 
+            // there is no client. TODO: debug
+            clients[clientId] &&
             clients[clientId].send(payload);
           } catch (e) {
             console.error(e);
