@@ -79,6 +79,10 @@ exports.listen = function(port, cb) {
       });
     });
 
+    client.on('error', function(reason, code) {
+      console.error('socket error: reason %s, %s', reason, code);
+    });
+
     client.rooms = [];
     client.join = function(room) {
       rooms[room] || (rooms[room] = []);
