@@ -67,16 +67,7 @@ exports.listen = function(port, cb) {
 
     client.on('close', function() {
       delete clients[client.id];
-
-      client.rooms.forEach(function(room) {
-        if (!rooms[room]) return;
-
-        var index = rooms[room].indexOf(client.id);
-
-        if (index >= 0) {
-          rooms[room].splice(index, 1);
-        }
-      });
+      client.leaveAll();
     });
 
     client.on('error', function(reason, code) {
@@ -94,17 +85,31 @@ exports.listen = function(port, cb) {
     };
 
     client.leave = function(room) {
-      if (!rooms[room]) return;
+      var leave = [];
 
-      var roomIndex = client.rooms.indexOf(room);
-      var clientIndex = rooms[room].indexOf(client.id);
+      if (room) {
+        leave.push(room);
+      } else {
+        leave = leave.concat(client.rooms);
+      }
+      
+      leave.forEach(function(room) {
+        if (!rooms[room]) return;
 
-      if (roomIndex >= 0) {
-        client.rooms.splice(roomIndex, 1);
-      }
-      if (clientIndex >= 0) {
-        rooms[room].splice(clientIndex, 1);
-      }
+        var roomIndex = client.rooms.indexOf(room);
+        var clientIndex = rooms[room].indexOf(client.id);
+
+        if (roomIndex >= 0) {
+          client.rooms.splice(roomIndex, 1);
+        }
+        if (clientIndex >= 0) {
+          rooms[room].splice(clientIndex, 1);
+        }
+      });
+    };
+
+    client.leaveAll = function() {
+      client.leave();
     };
 
     client.broadcast = function(room, event, data) {
