@@ -137,10 +137,10 @@ exports.listen = function(port, cb) {
 };
 
 exports.on = function(events, middlewares) {
-  if (events.push) {
+  if (!events.push) {
     events = [events];
   }
-  if (middlewares.push) {
+  if (!middlewares.push) {
     middlewares = [middlewares];
   }
   events.forEach(function(event) {
