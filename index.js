@@ -136,11 +136,16 @@ exports.listen = function(port, cb) {
   });
 };
 
-exports.on = function(events, middleware) {
-  events.push || (events = [events]);
+exports.on = function(events, middlewares) {
+  if (events.push) {
+    events = [events];
+  }
+  if (middlewares.push) {
+    middlewares = [middlewares];
+  }
   events.forEach(function(event) {
     stacks[event] || (stacks[event] = []);
-    stacks[event].push(middleware);
+    stacks[event] = stacks[event].concat(middlewares);
   });
 };
 
