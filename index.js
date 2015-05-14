@@ -8,8 +8,12 @@ var middlewares = {};
 var stacks = {};
 var rooms = {};
 
-exports.listen = function(port, cb) {
-  server = new WSServer({port: port}, cb);
+exports.listen = function(options, cb) {
+  if (typeof(options) == 'string') {
+    options = {port: options}
+  }
+
+  server = new WSServer(options, cb);
   server.on('connection', function(client) {
     var clientId = uuid.v1();
 
