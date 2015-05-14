@@ -77,8 +77,10 @@ exports.listen = function(port, cb) {
     client.rooms = [];
     client.join = function(room) {
       rooms[room] || (rooms[room] = []);
-      rooms[room].push(client.id);
-      
+
+      if (!~rooms[room].indexOf(client.id)) {
+        rooms[room].push(client.id);
+      }
       if (!~client.rooms.indexOf(room)) {
         client.rooms.push(room);
       }
@@ -146,6 +148,24 @@ exports.on = function(events, middlewares) {
   events.forEach(function(event) {
     stacks[event] || (stacks[event] = []);
     stacks[event] = stacks[event].concat(middlewares);
+  });
+};
+
+exports.broadcast = function(room, event, data) {
+  if (!rooms[room]) return;
+
+  var payload = JSON.stringify({
+    e: event
+  , d: data
+  });
+
+  rooms[room].forEach(function(clientId) {
+    try {
+      clients[clientId] &&
+      clients[clientId].send(payload);
+    } catch (e) {
+      console.error(e);
+    }
   });
 };
 
