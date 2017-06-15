@@ -9,6 +9,7 @@ var stacks = {};
 var rooms = {};
 
 function heartbeat() {
+  console.log('heartbeat')
   this.isAlive = true
 }
 
@@ -169,12 +170,15 @@ exports.broadcast = function(room, event, data) {
   , d: data
   });
 
+  console.log('broadcast to ', rooms[room].length)
+
   rooms[room].forEach(function(clientId) {
     try {
       clients[clientId] &&
       clients[clientId].send(payload);
     } catch (e) {
-      console.error(e);
+      console.log('terminated client after an error')
+      return client.terminate()
     }
   });
 };
@@ -196,7 +200,7 @@ setInterval(function() {
 
     if (client.isAlive === false) {
       console.log('terminated client')
-      return ws.terminate()
+      return client.terminate()
     }
 
     client.isAlive = false
