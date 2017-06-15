@@ -8,6 +8,10 @@ var middlewares = {};
 var stacks = {};
 var rooms = {};
 
+function heartbeat() {
+  this.isAlive = true
+}
+
 exports.listen = function(options, cb) {
   if (typeof(options) == 'string') {
     options = {port: options}
@@ -18,8 +22,10 @@ exports.listen = function(options, cb) {
     var clientId = uuid.v1();
 
     clients[clientId] = client;
-    
+
     client.id = clientId;
+    client.isAlive = true;
+    client.on('pong', heartbeat)
     client.on('message', function(message) {
       try {
         message = JSON.parse(message);
@@ -37,7 +43,7 @@ exports.listen = function(options, cb) {
         console.error('Event does not exist', event);
         return;
       }
-      
+
       var scope = {
         event: event
       , req: data
@@ -98,7 +104,7 @@ exports.listen = function(options, cb) {
       } else {
         leave = leave.concat(client.rooms);
       }
-      
+
       leave.forEach(function(room) {
         if (!rooms[room]) return;
 
@@ -129,7 +135,7 @@ exports.listen = function(options, cb) {
       rooms[room].forEach(function(clientId) {
         if (clientId != client.id) {
           try {
-            // i don't know why but sometimes 
+            // i don't know why but sometimes
             // there is no client. TODO: debug
             clients[clientId] &&
             clients[clientId].send(payload);
@@ -183,3 +189,17 @@ function parseError(err) {
   }
   return result;
 }
+
+setInterval(function() {
+  for (var clientId in clients) {
+    var client = clients[clientId]
+
+    if (client.isAlive === false) {
+      console.log('terminated client')
+      return ws.terminate()
+    }
+
+    client.isAlive = false
+    client.ping('', false, true)
+  }
+}, 30000)
