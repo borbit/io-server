@@ -72,6 +72,8 @@ exports.listen = function(options, cb) {
           client.send(JSON.stringify(payload));
         } catch(e) {
           console.error(e);
+          console.log('terminated client after an error 1')
+          client.terminate()
         }
       });
     });
@@ -142,6 +144,8 @@ exports.listen = function(options, cb) {
             clients[clientId].send(payload);
           } catch (e) {
             console.error(e);
+            console.log('terminated client after an error 2')
+            client.terminate()
           }
         }
       });
@@ -177,8 +181,9 @@ exports.broadcast = function(room, event, data) {
       clients[clientId] &&
       clients[clientId].send(payload);
     } catch (e) {
-      console.log('terminated client after an error')
-      return client.terminate()
+      console.error(e);
+      console.log('terminated client after an error 3')
+      client.terminate()
     }
   });
 };
